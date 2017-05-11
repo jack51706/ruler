@@ -352,6 +352,9 @@ func autodiscover(domain string, mapi bool) (*utils.AutodiscoverResp, string, er
 		if SessionConfig.Verbose == true {
 			utils.Error.Printf("Failed, StatusCode [%d]\n", resp.StatusCode)
 		}
+		if m, _ := regexp.Match("http[s]?://", []byte(domain)); m == true {
+			return nil, "", fmt.Errorf("Failed to authenticate: StatusCode [%d]\n", resp.StatusCode)
+		}
 		if autodiscoverStep < 2 {
 			autodiscoverStep++
 			return autodiscover(domain, mapi)
@@ -386,7 +389,8 @@ func redirectAutodiscover(redirdom string) (string, error) {
 	return resp.Header.Get("Location"), nil
 }
 
-//InsecureRedirects allows forwarding the Authorization header even when we shouldn't
+
+//InsecureRedirectsO365 allows forwarding the Authorization header even when we shouldn't
 type InsecureRedirectsO365 struct {
 	Transport http.RoundTripper
 	User      string
